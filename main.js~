@@ -1,0 +1,54 @@
+const https = require('https');
+const express = require("express");
+const fetch = require('node-fetch');
+const app = express();
+const asyncExpress = require('./config/asyncHandler.js');
+app.listen(5000, () => {
+    console.log(`App listening on Port: 5000`);
+});
+
+app.get("/:longitude/:latitude", asyncExpress(async req=>{
+  let params = {
+   lat: req.params.latittude,
+   lon: req.params.longitude
+  }
+  let queryString = "?";
+  for (let key in Object.keys(params)){
+   if(queryString.length != 1){
+          queryString += "&";
+   }
+   queryString += key + "=" + params[key];
+  }
+  let options = {
+   host: 'google api .com',
+   path: '/api/path' + queryString
+  }
+  let response = await https.get(options);
+  var url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=AIzaSyDf7gj_4CorPfUBz9yNwOS3ipFuIKF0Tns&location="+params['lat']+","+params['lon']+"&radius=1609&type=restaurant";
+  fetch(url, { method: 'GET'})
+   .then(res => res.json())
+   .then(json => {
+       console.log(json.results);
+       console.log(json.results.map(result=> ({
+       location: result.geometry.location,
+       name: result.name,
+       price_level: result.price_level,
+       rating: result.rating,
+       vicinity: result.vicinity
+       })))
+   });
+  for (location in response.data.locations){
+  }
+  coordinates = Coordinate.map(Coordinate => {
+      return {
+       longitude: req.params.longitude,
+       latitude: req.params.latitude
+      };
+  });
+    return {
+	status: 200,
+	content: coordinates
+    };
+}));
+
+
